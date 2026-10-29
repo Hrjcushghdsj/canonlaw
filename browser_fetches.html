@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Code of Canon Law</title>
+<style>
+  :root {
+    --default-hue: 25;
+    --default-contrast: 50;
+
+    --bg: #ffffff;
+    --bg-alt: #f6f4ef;
+    --sidebar-bg: #faf8f3;
+    --text: #1c1b19;
+    --muted: #6b675f;
+    --accent: hsl(var(--default-hue), 59%, 30%);
+    --accent-soft: hsl(var(--default-hue), 32%, 92%);
+    --border: #ddd8cf;
+    --highlight: hsla(48, 85%, 82%, 0.42);
+    --shadow: rgba(0,0,0,.14);
+    --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  [data-theme="dark"] {
+    --bg: #000000;
+    --bg-alt: #101010;
+    --sidebar-bg: #101010;
+    --text: #e9e6e0;
+    --muted: #a7a299;
+    --accent: hsl(var(--default-hue), 53%, 74%);
+    --accent-soft: hsl(var(--default-hue), 19%, 17%);
+    --border: #606060;
+    --highlight: hsla(48, 45%, 24%, 0.30);
+    --shadow: rgba(0,0,0,.5);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; display: flex; flex-direction: column;
+    font-family: var(--sans); background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- Header ---------- */
+  #topbar {
+    height: 56px; flex-shrink: 0; display: flex; align-items: center; gap: 10px;
+    padding: 0 14px; background: var(--bg-alt); border-bottom: 1px solid var(--border);
+    position: relative; z-index: 30;
+  }
+  #brand { font-weight: 700; font-size: 0.98rem; white-space: nowrap; }
+  #brand span { font-weight: 400; font-size: 0.8rem; color: var(--muted); margin-left: 4px; }
+  #menu-toggle {
+    display: none; background: none; border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; width: 38px; height: 38px; font-size: 1.1rem; cursor: pointer;
+  }
+
+  /* ---------- Search ---------- */
+  #search-wrap { position: relative; margin-left: auto; width: min(520px, 52vw); }
+  .search-row { display: flex; gap: 6px; align-items: center; }
+  #search {
+    flex: 1; min-width: 0; height: 38px; padding: 0 12px;
+    font-size: 0.9rem; font-family: var(--sans);
+    color: var(--text); background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px; outline: none;
+  }
+  #search:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+
+  #adv-toggle {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    background: none; border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; width: 38px; height: 38px; padding: 0;
+    cursor: pointer; flex-shrink: 0;
+  }
+  #adv-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  #adv-toggle.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  #adv-toggle svg { display: block; }
+  #adv-toggle.has-active::after {
+    content: ''; position: absolute; top: 5px; right: 5px;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+  }
+
+  #search-dropdown {
+    position: absolute; top: calc(100% + 6px); right: 0;
+    width: min(600px, 90vw); max-height: 72vh; overflow-y: auto;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 12px 40px var(--shadow); display: none; z-index: 60;
+  }
+  #search-dropdown.open { display: block; }
+
+  #advanced-search {
+    padding: 12px 14px; border-bottom: 1px solid var(--border); background: var(--bg-alt);
+  }
+  #advanced-search[hidden] { display: none; }
+
+  .adv-group { margin-bottom: 10px; }
+  .adv-group:last-of-type { margin-bottom: 8px; }
+  .adv-label {
+    display: block; font-family: var(--sans); font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px;
+  }
+  .adv-seg {
+    display: flex; gap: 3px; padding: 3px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  }
+  .adv-seg button {
+    flex: 1; padding: 6px 8px; border: none; background: none;
+    color: var(--muted); font-family: var(--sans); font-size: 0.78rem;
+    border-radius: 5px; cursor: pointer;
+  }
+  .adv-seg button:hover { color: var(--text); }
+  .adv-seg button.active {
+    background: var(--accent-soft); color: var(--accent); font-weight: 700;
+  }
+  #adv-logic-group.disabled { opacity: 0.45; pointer-events: none; }
+
+  .adv-check {
+    display: flex; align-items: center; gap: 7px;
+    font-family: var(--sans); font-size: 0.8rem; color: var(--text); cursor: pointer;
+  }
+  .adv-check input { accent-color: var(--accent); cursor: pointer; }
+  .adv-hint {
+    font-family: var(--sans); font-size: 0.72rem; color: var(--muted);
+    line-height: 1.45; margin-top: 6px;
+  }
+
+  #search-results { display: none; }
+  #search-results.open { display: block; }
+  .sr-header {
+    padding: 7px 12px; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); background: var(--bg-alt); border-bottom: 1px solid var(--border);
+  }
+  .sr-item { padding: 9px 13px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .sr-item:last-child { border-bottom: none; }
+  .sr-item:hover { background: var(--bg-alt); }
+  .sr-title { font-size: 0.84rem; font-weight: 600; color: var(--accent); }
+  .sr-snippet {
+    margin-top: 3px; font-size: 0.8rem; line-height: 1.45;
+    color: var(--muted); font-family: var(--serif);
+  }
+  .sr-snippet mark {
+    background: var(--highlight); color: inherit;
+    padding: 0 1px; border-radius: 2px;
+  }
+  .sr-empty { padding: 16px; color: var(--muted); font-size: 0.9rem; }
+
+  #theme-btn {
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; width: 38px; height: 38px; padding: 0;
+    cursor: pointer; flex-shrink: 0;
+  }
+  #theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+  #theme-btn svg { display: block; }
+
+  /* ---------- Layout ---------- */
+  #layout { flex: 1; display: flex; min-height: 0; }
+  #sidebar {
+    width: 350px; flex-shrink: 0; overflow-y: auto; background: var(--sidebar-bg);
+    border-right: 1px solid var(--border); padding: 10px 0 40px;
+  }
+  #content { flex: 1; overflow-y: auto; padding: 30px 36px 90px; scroll-behavior: smooth; }
+  #page { max-width: 790px; margin: 0 auto; }
+
+  /* ---------- Tree ---------- */
+  .tree { list-style: none; margin: 0; padding-left: 15px; }
+  #tree-container > .tree { padding-left: 6px; }
+  .tree-row {
+    display: flex; align-items: flex-start; gap: 5px; padding: 3px 8px 3px 4px;
+    border-radius: 5px; cursor: pointer; font-size: 0.82rem; line-height: 1.32; color: var(--text);
+  }
+  .tree-row:hover { background: var(--bg-alt); }
+  .tree-row.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .tree-row.has-page .tree-label { font-weight: 600; }
+  .tree-row.active .tree-label { font-weight: 700; }
+  .tree-row.is-leaf-canons { font-size: 0.78rem; color: var(--muted); }
+  .tree-row.is-leaf-canons.active { color: var(--accent); }
+  .tree-label { flex: 1; }
+  .toggle {
+    width: 14px; flex-shrink: 0; color: var(--muted);
+    font-size: 0.7rem; line-height: 1.5; text-align: center;
+    transition: transform .15s ease;
+  }
+  li.collapsed > .tree-row .toggle { transform: rotate(0deg); }
+  li:not(.collapsed) > .tree-row .toggle { transform: rotate(90deg); }
+  li.collapsed > ul { display: none; }
+
+  /* ---------- Page content ---------- */
+  .page-header .breadcrumb {
+    font-family: var(--sans); font-size: 0.74rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+    line-height: 1.5;
+  }
+  .page-header .breadcrumb .sep { color: var(--border); margin: 0 6px; }
+  .page-header h2 {
+    font-family: var(--serif); font-size: 1.75rem; line-height: 1.2;
+    color: var(--accent); margin: 0 0 1.6rem;
+  }
+
+  /* ---------- Canon blocks (many per page) ---------- */
+  .canon-block {
+    margin: 1.6rem 0 2rem;
+    padding: 0 0 1rem;
+    border-bottom: 1px solid var(--border);
+    scroll-margin-top: 70px;
+  }
+  .canon-block:first-of-type { margin-top: 0; }
+  .canon-block:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .canon-title {
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.65em;
+  }
+  .canon-block.flash {
+    animation: canonFlash 1.8s ease forwards;
+    border-radius: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-left: -10px;
+    margin-right: -10px;
+  }
+  @keyframes canonFlash {
+    0%   { background: var(--highlight); box-shadow: 0 0 0 6px var(--highlight); }
+    100% { background: transparent;     box-shadow: 0 0 0 0 transparent; }
+  }
+
+  .page-body { font-family: var(--serif); font-size: 1.06rem; line-height: 1.72; }
+  .para { margin: 0 0 0.92em; }
+  .para.highlight {
+    background: var(--highlight); border-radius: 5px;
+    box-shadow: 0 0 0 5px var(--highlight);
+  }
+
+  /* ---------- See Also / Cited In ---------- */
+  .xref-section {
+    margin-top: 0.9rem; padding-top: 0.75rem;
+    border-top: 1px dashed var(--border);
+    font-family: var(--sans); font-size: 0.82rem; line-height: 1.6;
+  }
+  .xref-section h3 {
+    display: inline; font-size: 0.68rem; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--muted); margin: 0 8px 0 0;
+    font-weight: 700;
+  }
+  .xref-section + .xref-section { margin-top: 0.5rem; padding-top: 0.5rem; border-top: none; }
+  .xref-pill {
+    display: inline-block; padding: 1px 7px; margin: 2px 3px 2px 0;
+    border: 1px solid var(--border); border-radius: 999px;
+    background: var(--bg-alt); color: var(--accent);
+    font-size: 0.76rem; font-weight: 600; cursor: pointer;
+    text-decoration: none; transition: border-color .12s, background .12s;
+  }
+  .xref-pill:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .xref-pill.missing { color: var(--muted); cursor: help; }
+  .xref-pill .para-tag {
+    font-weight: 500; color: var(--muted); margin-left: 4px; font-size: 0.7rem;
+  }
+
+  /* ---------- Pager ---------- */
+  #pager {
+    max-width: 790px; margin: 36px auto 0; padding-top: 16px;
+    border-top: 1px solid var(--border); display: flex; align-items: center;
+    justify-content: space-between; gap: 10px; font-size: 0.8rem;
+  }
+  #pager button {
+    background: var(--bg-alt); border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 7px 12px; font-size: 0.8rem; cursor: pointer;
+    max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  #pager button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  #pager button:disabled { opacity: 0.38; cursor: default; }
+  #pager-label { color: var(--muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+  /* ---------- Tooltip ---------- */
+  #tooltip {
+    position: fixed; max-width: 380px; padding: 10px 13px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 10px 34px var(--shadow); font-family: var(--serif);
+    font-size: 0.88rem; line-height: 1.55; color: var(--text);
+    z-index: 80; pointer-events: none; opacity: 0; transition: opacity 0.12s;
+  }
+  #tooltip.show { opacity: 1; }
+  .tooltip-header {
+    font-family: var(--sans); font-weight: 700; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--accent); margin-bottom: 4px;
+  }
+
+  /* ---------- Preview pane ---------- */
+  #preview-pane {
+    position: fixed; top: 56px; right: 0; bottom: 0; width: min(460px, 92vw);
+    background: var(--bg); border-left: 1px solid var(--border);
+    box-shadow: -10px 0 40px var(--shadow); transform: translateX(105%);
+    transition: transform 0.22s ease; z-index: 22; display: flex; flex-direction: column;
+  }
+  #preview-pane.open { transform: none; }
+  #preview-header {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-shrink: 0;
+  }
+  #preview-title {
+    font-family: var(--sans); font-weight: 700; font-size: 0.82rem;
+    text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent);
+  }
+  #preview-close {
+    background: none; border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; width: 32px; height: 32px; font-size: 1.1rem;
+    cursor: pointer; line-height: 1;
+  }
+  #preview-close:hover { border-color: var(--accent); color: var(--accent); }
+  #preview-body {
+    flex: 1; overflow-y: auto; padding: 18px 20px 30px;
+    font-family: var(--serif); font-size: 1rem; line-height: 1.68;
+  }
+  #preview-body .para { margin-bottom: 0.8em; }
+  #preview-body .open-full {
+    display: inline-block; margin-top: 14px; font-family: var(--sans);
+    font-size: 0.82rem; color: var(--accent); text-decoration: none; font-weight: 600;
+  }
+  #preview-body .open-full:hover { text-decoration: underline; }
+
+  .loading, .error {
+    max-width: 640px; margin: 60px auto; padding: 20px;
+    font-family: var(--sans); font-size: 0.95rem; line-height: 1.6;
+  }
+  .error { border: 1px solid var(--border); border-radius: 10px; background: var(--bg-alt); }
+  .error h2 { margin-top: 0; color: var(--accent); font-size: 1.2rem; }
+  .error code { background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+
+  #backdrop {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 24;
+  }
+  #backdrop.show { display: block; }
+
+  /* ---------- Theme dialog ---------- */
+  .modal {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal[hidden] { display: none; }
+  .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
+  .modal-panel {
+    position: relative; width: min(400px, 100%); max-height: calc(100vh - 32px);
+    overflow-y: auto; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 14px; box-shadow: 0 24px 70px var(--shadow);
+    padding: 16px 20px 20px;
+  }
+  .modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 4px;
+  }
+  .modal-head h2 { margin: 0; font-family: var(--sans); font-size: 1.02rem; color: var(--accent); }
+  #theme-close {
+    background: none; border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; width: 30px; height: 30px; font-size: 1.05rem;
+    line-height: 1; cursor: pointer; flex-shrink: 0;
+  }
+  #theme-close:hover { border-color: var(--accent); color: var(--accent); }
+
+  .field { margin-top: 18px; }
+  .field-label, .field > label {
+    display: block; font-family: var(--sans); font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .field-controls { display: flex; align-items: center; gap: 10px; }
+  .field-controls input[type="range"] { flex: 1; min-width: 0; accent-color: var(--accent); }
+  .field-controls input[type="number"] {
+    width: 66px; flex-shrink: 0; padding: 6px 8px;
+    font-family: var(--sans); font-size: 0.86rem; text-align: center;
+    color: var(--text); background: var(--bg-alt);
+    border: 1px solid var(--border); border-radius: 7px;
+    outline: none; -moz-appearance: textfield;
+  }
+  .field-controls input[type="number"]::-webkit-outer-spin-button,
+  .field-controls input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none; margin: 0;
+  }
+  .field-controls input[type="number"]:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft);
+  }
+
+  #hue-range {
+    -webkit-appearance: none; appearance: none; height: 10px;
+    border: 1px solid var(--border); border-radius: 5px;
+    background: linear-gradient(to right,
+      hsl(0, 65%, 50%), hsl(60, 65%, 50%), hsl(120, 65%, 50%),
+      hsl(180, 65%, 50%), hsl(240, 65%, 50%), hsl(300, 65%, 50%), hsl(360, 65%, 50%));
+    outline: none; cursor: pointer;
+  }
+  #hue-range::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+    border-radius: 50%; background: var(--accent);
+    border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--border); cursor: pointer;
+  }
+  #hue-range::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--accent);
+    border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--border); cursor: pointer;
+  }
+
+  .swatch {
+    width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%;
+    background: var(--accent); border: 1px solid var(--border);
+  }
+
+  .segmented {
+    display: flex; gap: 4px; padding: 3px;
+    background: var(--bg-alt); border: 1px solid var(--border); border-radius: 9px;
+  }
+  .segmented button {
+    flex: 1; padding: 7px 10px; border: none; background: none;
+    color: var(--muted); font-family: var(--sans); font-size: 0.84rem;
+    border-radius: 6px; cursor: pointer;
+  }
+  .segmented button:hover { color: var(--text); }
+  .segmented button.active {
+    background: var(--bg); color: var(--accent); font-weight: 700;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .modal-foot { margin-top: 22px; display: flex; justify-content: flex-end; }
+  .btn-primary {
+    padding: 8px 16px; border-radius: 8px;
+    border: 1px solid var(--accent); background: var(--accent); color: var(--bg);
+    font-family: var(--sans); font-size: 0.86rem; font-weight: 700; cursor: pointer;
+  }
+  .btn-primary:hover { filter: brightness(1.08); }
+
+  @media (max-width: 860px) {
+    #menu-toggle { display: block; }
+    #brand span { display: none; }
+    #search-wrap { width: min(420px, 52vw); }
+    #sidebar {
+      position: fixed; top: 56px; bottom: 0; left: 0; width: 86vw; max-width: 370px;
+      z-index: 25; transform: translateX(-105%); transition: transform .22s ease;
+      box-shadow: 0 0 40px rgba(0,0,0,.25);
+    }
+    #sidebar.open { transform: none; }
+    #content { padding: 22px 18px 70px; }
+    #pager button { max-width: 38%; font-size: 0.72rem; }
+  }
+  @media (max-width: 520px) {
+    #search-wrap { width: auto; flex: 1; min-width: 0; }
+    #brand { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header id="topbar">
+  <button id="menu-toggle" aria-label="Toggle navigation">☰</button>
+  <div id="brand">Code of Canon Law <span>· Latin Church</span></div>
+
+  <div id="search-wrap">
+    <div class="search-row">
+      <input id="search" type="search" placeholder="Search text or Canon §…" autocomplete="off" spellcheck="false" aria-label="Search the Code of Canon Law">
+      <button id="adv-toggle" aria-label="Advanced search options" aria-expanded="false" aria-controls="advanced-search" title="Advanced search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="6" y1="12" x2="18" y2="12"/>
+          <line x1="10" y1="18" x2="14" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="search-dropdown">
+      <div id="advanced-search" hidden>
+        <div class="adv-group">
+          <span class="adv-label" id="adv-match-label">Match</span>
+          <div class="adv-seg" role="group" aria-labelledby="adv-match-label">
+            <button type="button" data-match="contains" class="active">Contains</button>
+            <button type="button" data-match="whole">Whole word</button>
+            <button type="button" data-match="regex">Regex</button>
+          </div>
+        </div>
+
+        <div class="adv-group" id="adv-logic-group">
+          <span class="adv-label" id="adv-logic-label">Multiple words</span>
+          <div class="adv-seg" role="group" aria-labelledby="adv-logic-label">
+            <button type="button" data-logic="all" class="active">All</button>
+            <button type="button" data-logic="any">Any</button>
+            <button type="button" data-logic="phrase">Exact phrase</button>
+          </div>
+        </div>
+
+        <div class="adv-group">
+          <label class="adv-check">
+            <input type="checkbox" id="adv-case">
+            <span>Case sensitive</span>
+          </label>
+        </div>
+
+        <div class="adv-hint" id="adv-hint"></div>
+      </div>
+
+      <div id="search-results" role="listbox"></div>
+    </div>
+  </div>
+
+  <button id="theme-btn" aria-label="Theme settings" aria-haspopup="dialog" aria-controls="theme-modal" title="Theme settings">
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/>
+    </svg>
+  </button>
+</header>
+
+<div id="layout">
+  <nav id="sidebar" aria-label="Table of contents">
+    <div id="tree-container"></div>
+  </nav>
+
+  <main id="content">
+    <div id="page">
+      <div class="loading">Loading the Code of Canon Law…</div>
+    </div>
+    <div id="pager">
+      <button id="prev" disabled>← Previous</button>
+      <span id="pager-label"></span>
+      <button id="next" disabled>Next →</button>
+    </div>
+  </main>
+</div>
+
+<aside id="preview-pane" aria-label="Preview">
+  <div id="preview-header">
+    <span id="preview-title"></span>
+    <button id="preview-close" aria-label="Close preview">×</button>
+  </div>
+  <div id="preview-body"></div>
+</aside>
+
+<div id="tooltip" role="tooltip"></div>
+<div id="backdrop"></div>
+
+<div id="theme-modal" class="modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="theme-title">
+    <div class="modal-head">
+      <h2 id="theme-title">Appearance</h2>
+      <button id="theme-close" aria-label="Close">×</button>
+    </div>
+
+    <div class="field">
+      <span class="field-label" id="mode-label">Mode</span>
+      <div class="segmented" role="group" aria-labelledby="mode-label">
+        <button type="button" data-mode="light">Light</button>
+        <button type="button" data-mode="dark">Dark</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="bg-range">Contrast</label>
+      <div class="field-controls">
+        <input type="range" id="bg-range" min="0" max="100" step="1" value="0">
+        <input type="number" id="bg-number" min="0" max="100" step="1" value="0"
+               inputmode="numeric" aria-label="Contrast, 0 to 100">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="hue-range">Color</label>
+      <div class="field-controls">
+        <input type="range" id="hue-range" min="0" max="360" step="1" value="25">
+        <input type="number" id="hue-number" min="0" max="360" step="1" value="25"
+               inputmode="numeric" aria-label="Accent hue, 0 to 360 degrees">
+        <span id="hue-swatch" class="swatch" aria-hidden="true"></span>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button id="theme-done" class="btn-primary">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* =========================================================================
+ *  CONFIG
+ * ========================================================================= */
+const CANON_JSON_URL    = 'https://raw.githubusercontent.com/Hrjcushghdsj/canonlaw/refs/heads/main/canon-law.json';
+const CANON_JSON_INLINE = null;
+
+const $ = (sel, root = document) => root.querySelector(sel);
+
+const state = {
+  currentPage: null,          // page (hierarchy node) ID
+  currentCanon: null,         // canon number, when user scrolled to a specific one
+  canonOrder: [],             // sorted array of canon numbers present
+  canons: {},                 // "N" → canon record
+  hierarchy: [],              // original hierarchy tree
+  treeModel: [],              // rendered tree model
+  pages: {},                  // pageId → { id, title, path, canons[] }
+  canonToPage: {},            // canonNum → pageId
+  pageOrder: [],              // pageIds in reading order
+  pathToNodeId: {},           // serialized path → pageId
+  backlinks: {},              // canonNum → array of source canon numbers
+  searchData: {},             // canonNum → { text, breadcrumb }
+  lastPageOpts: null,
+  themeMode: 'light',
+  contrast: 0,
+  hue: 25,
+  searchOpts: { match: 'contains', logic: 'all', caseSensitive: false },
+  embedRaw: undefined,
+};
+
+const els = {};
+let tooltipEl = null;
+let searchTimer = null;
+let paraMenuEl = null;
+let paraMenuTarget = null;
+
+/* ------------------------------------------------------------------ *
+ *  Boot
+ * ------------------------------------------------------------------ */
+document.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+  els.tree          = $('#tree-container');
+  els.page          = $('#page');
+  els.search        = $('#search');
+  els.searchResults = $('#search-results');
+  els.searchWrap    = $('#search-wrap');
+  els.searchDropdown= $('#search-dropdown');
+  els.advToggle     = $('#adv-toggle');
+  els.advPanel      = $('#advanced-search');
+  els.advHint       = $('#adv-hint');
+  els.advLogicGroup = $('#adv-logic-group');
+  els.sidebar       = $('#sidebar');
+  els.backdrop      = $('#backdrop');
+  els.menuToggle    = $('#menu-toggle');
+  els.prev          = $('#prev');
+  els.next          = $('#next');
+  els.pagerLabel    = $('#pager-label');
+  els.previewPane   = $('#preview-pane');
+  els.previewTitle  = $('#preview-title');
+  els.previewBody   = $('#preview-body');
+
+  els.themeBtn    = $('#theme-btn');
+  els.themeModal  = $('#theme-modal');
+  els.bgRange     = $('#bg-range');
+  els.bgNumber    = $('#bg-number');
+  els.hueRange    = $('#hue-range');
+  els.hueNumber   = $('#hue-number');
+  els.modeButtons = Array.from(document.querySelectorAll('#theme-modal .segmented button'));
+
+  setupTheme();
+  bindUI();
+
+  let data = parseMaybeJson(CANON_JSON_INLINE);
+  if (!data && CANON_JSON_URL) {
+    try { data = await fetchJson(CANON_JSON_URL); }
+    catch (err) { console.warn('[CanonLaw] Could not load JSON from URL:', err.message); }
+  }
+  if (!data) {
+    showLoadError(new Error(
+      'Could not load the Code of Canon Law JSON. ' +
+      (CANON_JSON_INLINE
+        ? 'Inline contents were provided but could not be parsed.'
+        : 'Configure CANON_JSON_INLINE or CANON_JSON_URL in the CONFIG section.')
+    ));
+    return;
+  }
+  safeStart(data);
+}
+
+function safeStart(data) {
+  try { startWithData(data); }
+  catch (e) {
+    console.error('[CanonLaw] Render error:', e);
+    els.page.innerHTML = '';
+    const box = document.createElement('div');
+    box.className = 'error';
+    box.innerHTML = '<h2>Could not display the Code of Canon Law</h2>' +
+      '<p>See the browser console for details. The data was loaded, but an error occurred while rendering it.</p>';
+    els.page.appendChild(box);
+  }
+}
+
+function startWithData(data) {
+  state.data = data;
+  buildIndexes();
+  renderTree();
+  routeInitial();
+}
+
+/* ------------------------------------------------------------------ *
+ *  Loader helpers
+ * ------------------------------------------------------------------ */
+function parseMaybeJson(value) {
+  if (value == null) return null;
+  if (typeof value === 'string') {
+    const s = value.trim();
+    if (!s) return null;
+    try { return JSON.parse(s); }
+    catch (e) { console.warn('[CanonLaw] Inline JSON could not be parsed:', e.message); return null; }
+  }
+  if (typeof value === 'object') return value;
+  return null;
+}
+async function fetchJson(url) {
+  if (!url) throw new Error('No URL configured');
+  const res = await fetch(url, { cache: 'no-cache' });
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+  return res.json();
+}
+function showLoadError(err) {
+  els.page.innerHTML = '';
+  const box = document.createElement('div');
+  box.className = 'error';
+  box.innerHTML = `
+    <h2>Could not load the Code of Canon Law</h2>
+    <p>${escapeHtml(String(err && err.message ? err.message : err))}</p>
+    <p>Set <code>CANON_JSON_INLINE</code> or <code>CANON_JSON_URL</code> at the top of the
+       script, or select the file manually:</p>
+  `;
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.addEventListener('change', () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      let data;
+      try { data = JSON.parse(reader.result); }
+      catch (e) { alert('That file is not valid JSON: ' + e.message); return; }
+      safeStart(data);
+    };
+    reader.readAsText(file);
+  });
+  box.appendChild(input);
+  els.page.appendChild(box);
+}
+
+/* ------------------------------------------------------------------ *
+ *  Indexing — pages are hierarchy leaves
+ * ------------------------------------------------------------------ */
+function pathKey(path) {
+  return (path || []).map(p => `${p.type}:${p.number}`).join('/');
+}
+
+function buildIndexes() {
+  const data = state.data;
+  state.canons    = data.canons    || {};
+  state.hierarchy = data.hierarchy || [];
+
+  state.canonOrder = Object.keys(state.canons)
+    .map(Number)
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+
+  // 1. Assign stable IDs to hierarchy nodes and record their paths
+  let nodeCounter = 0;
+  state.pathToNodeId = {};
+  state.nodesById = {};
+
+  function walkHierarchy(node, parentPath) {
+    const id = 'n' + (++nodeCounter);
+    node.__id = id;
+    const path = parentPath.concat([{ type: node.type, number: node.number }]);
+    state.pathToNodeId[pathKey(path)] = id;
+    state.nodesById[id] = { node, path };
+    for (const child of node.children || []) walkHierarchy(child, path);
+  }
+  for (const top of state.hierarchy) walkHierarchy(top, []);
+
+  // 2. Group canons by their deepest path node → "pages"
+  state.canonToPage = {};
+  state.pages = {};
+
+  for (const n of state.canonOrder) {
+    const c = state.canons[String(n)];
+    const path = c.path || [];
+    const pageId = state.pathToNodeId[pathKey(path)];
+    if (!pageId) {
+      console.warn('[CanonLaw] Canon', n, 'has no hierarchy node — skipping');
+      continue;
+    }
+    state.canonToPage[n] = pageId;
+    if (!state.pages[pageId]) {
+      const lastNode = path[path.length - 1] || {};
+      state.pages[pageId] = {
+        id:    pageId,
+        title: lastNode.name || (lastNode.type + ' ' + (lastNode.number || '')),
+        path:  path,
+        canons: [],
+      };
+    }
+    state.pages[pageId].canons.push(n);
+  }
+
+  for (const id in state.pages) {
+    state.pages[id].canons.sort((a, b) => a - b);
+  }
+
+  // 3. Page order = depth-first reading order of the hierarchy
+  state.pageOrder = [];
+  function walkOrder(node) {
+    if (state.pages[node.__id]) state.pageOrder.push(node.__id);
+    for (const child of node.children || []) walkOrder(child);
+  }
+  for (const top of state.hierarchy) walkOrder(top);
+
+  // 4. Search data
+  state.searchData = {};
+  for (const n of state.canonOrder) {
+    const c = state.canons[String(n)];
+    state.searchData[n] = {
+      text:       c.text || '',
+      breadcrumb: (c.path || []).map(p => p.name).join(' › '),
+    };
+  }
+
+  // 5. Backlinks — invert the references graph
+  state.backlinks = {};
+  for (const n of state.canonOrder) {
+    const c = state.canons[String(n)];
+    for (const ref of (c.references || [])) {
+      const t = ref.number;
+      if (!Number.isFinite(t) || t === n) continue;
+      if (!state.backlinks[t]) state.backlinks[t] = [];
+      if (!state.backlinks[t].includes(n)) state.backlinks[t].push(n);
+    }
+  }
+  for (const k in state.backlinks) state.backlinks[k].sort((a, b) => a - b);
+
+  // 6. Build tree model (pages + canon leaves)
+  state.treeModel = buildTreeModel(state.hierarchy);
+}
+
+function hasAnyCanons(node) {
+  if (state.pages[node.__id]) return true;
+  for (const c of (node.children || [])) if (hasAnyCanons(c)) return true;
+  return false;
+}
+
+function buildTreeModel(hierarchyNodes) {
+  const out = [];
+  for (const h of hierarchyNodes) {
+    if (!hasAnyCanons(h)) continue;
+    out.push(convertHierarchyNode(h));
+  }
+  return out;
+}
+
+function convertHierarchyNode(h) {
+  const isPage = !!state.pages[h.__id];
+  const node = {
+    id:       h.__id,
+    label:    h.name || (h.type + ' ' + (h.number || '')),
+    isCanon:  false,
+    isPage:   isPage,
+    children: [],
+  };
+
+  // Direct canons first (reading order — before the sub-sections)
+  if (isPage) {
+    for (const n of state.pages[h.__id].canons) {
+      node.children.push({
+        id:       'canon-' + n,
+        label:    'Canon ' + n,
+        isCanon:  true,
+        canonNum: n,
+        children: [],
+      });
+    }
+  }
+
+  // Then hierarchy children
+  for (const child of (h.children || [])) {
+    if (!hasAnyCanons(child)) continue;
+    node.children.push(convertHierarchyNode(child));
+  }
+
+  return node;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Tree rendering
+ * ------------------------------------------------------------------ */
+function renderTree() {
+  els.tree.innerHTML = '';
+  const root = buildTree(state.treeModel);
+  els.tree.appendChild(root);
+  // No auto-expand here — updateActiveTree() expands the path to the current node.
+}
+
+function buildTree(nodes) {
+  const ul = document.createElement('ul');
+  ul.className = 'tree';
+
+  for (const n of nodes) {
+    const li = document.createElement('li');
+    li.dataset.id = n.id;
+    if (n.isCanon) li.dataset.canonNum = String(n.canonNum);
+    if (n.isPage)  li.dataset.pageId   = n.id;
+
+    const hasChildren = !!(n.children && n.children.length);
+    if (hasChildren) li.classList.add('collapsed');
+
+    const row = document.createElement('div');
+    row.className = 'tree-row';
+    if (n.isCanon) row.classList.add('is-leaf-canons');
+
+    const toggle = document.createElement('span');
+    toggle.className = 'toggle';
+    toggle.textContent = '▸';
+    if (!hasChildren) toggle.style.visibility = 'hidden';
+    row.appendChild(toggle);
+
+    const label = document.createElement('span');
+    label.className = 'tree-label';
+    label.textContent = n.label;
+    row.appendChild(label);
+
+    if (n.isPage || n.isCanon) row.classList.add('has-page');
+
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (hasChildren) li.classList.toggle('collapsed');
+    });
+
+    row.addEventListener('click', () => {
+      if (n.isCanon) {
+        navigateToCanon(n.canonNum);
+      } else if (n.isPage) {
+        navigate(n.id);
+        if (hasChildren) li.classList.remove('collapsed');
+      } else if (hasChildren) {
+        li.classList.toggle('collapsed');
+      }
+    });
+
+    li.appendChild(row);
+    if (hasChildren) li.appendChild(buildTree(n.children));
+    ul.appendChild(li);
+  }
+
+  return ul;
+}
+
+function updateActiveTree(pageId, canonNum) {
+  document.querySelectorAll('.tree-row.active').forEach(r => r.classList.remove('active'));
+
+  let li = null;
+  if (canonNum != null) {
+    li = document.querySelector(`li[data-canon-num="${canonNum}"]`);
+  }
+  if (!li && pageId != null) {
+    li = document.querySelector(`li[data-page-id="${pageId}"]`);
+  }
+  if (!li) return;
+
+  const row = li.querySelector(':scope > .tree-row');
+  if (row) {
+    row.classList.add('active');
+    row.scrollIntoView({ block: 'nearest' });
+  }
+
+  // Expand all ancestors
+  let p = li.parentElement;
+  while (p && p.id !== 'tree-container') {
+    if (p.tagName === 'LI') p.classList.remove('collapsed');
+    p = p.parentElement;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Navigation
+ * ------------------------------------------------------------------ */
+function navigateToCanon(canonNum) {
+  const pageId = state.canonToPage[canonNum];
+  if (!pageId) return;
+  navigate(pageId, { scrollToCanon: canonNum });
+}
+
+function navigate(pageId, opts = {}) {
+  const page = state.pages[pageId];
+  if (!page) return;
+
+  closePreview();
+  hideTooltip();
+  closeParaMenu();
+
+  state.currentPage  = pageId;
+  state.currentCanon = (opts.scrollToCanon != null) ? opts.scrollToCanon : null;
+
+  renderPage(pageId, opts);
+  updateActiveTree(pageId, state.currentCanon);
+  updatePager();
+
+  if (!opts.silentHash) setLocation(pageId, 'pushState');
+
+  const content = document.getElementById('content');
+  if (content) content.scrollTop = 0;
+
+  updateDocumentTitle(pageId);
+  if (window.innerWidth <= 860) closeSidebar();
+
+  if (opts.scrollToCanon != null) {
+    requestAnimationFrame(() => {
+      scrollToCanon(opts.scrollToCanon, opts.scrollToPara);
+    });
+  }
+}
+
+function scrollToCanon(canonNum, paraTag) {
+  const block = document.getElementById('canon-' + canonNum);
+  if (!block) return;
+
+  // Optional paragraph highlight
+  if (paraTag) {
+    const m = String(paraTag).match(/§{1,2}\s*(\d+)(?:\s*[-\u2013]\s*(\d+))?/);
+    if (m) {
+      const lo = parseInt(m[1], 10);
+      const hi = m[2] ? parseInt(m[2], 10) : lo;
+      block.querySelectorAll('.para').forEach(p => {
+        const pm = p.textContent.match(/^§\s*(\d+)/);
+        if (pm) {
+          const n = parseInt(pm[1], 10);
+          if (n >= lo && n <= hi) p.classList.add('highlight');
+        }
+      });
+    }
+  }
+
+  block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  block.classList.remove('flash');
+  // Force reflow so re-adding the class restarts the animation
+  void block.offsetWidth;
+  block.classList.add('flash');
+  setTimeout(() => block.classList.remove('flash'), 1900);
+}
+
+function updateDocumentTitle(pageId) {
+  const p = state.pages[pageId];
+  const title = p ? p.title : 'Code of Canon Law';
+  document.title = title + ' — Code of Canon Law';
+}
+
+function updatePager() {
+  if (!els.prev || !els.next || !els.pagerLabel) return;
+  const i = state.pageOrder.indexOf(state.currentPage);
+  if (i < 0) {
+    els.prev.disabled = true; els.next.disabled = true;
+    els.pagerLabel.textContent = '';
+    return;
+  }
+  const prevId = i > 0 ? state.pageOrder[i - 1] : null;
+  const nextId = i < state.pageOrder.length - 1 ? state.pageOrder[i + 1] : null;
+
+  els.prev.disabled = !prevId;
+  els.next.disabled = !nextId;
+
+  els.prev.textContent = prevId ? '← ' + truncate(labelFor(prevId), 34) : '← Previous';
+  els.next.textContent = nextId ? truncate(labelFor(nextId), 34) + ' →' : 'Next →';
+  els.pagerLabel.textContent = `${i + 1} / ${state.pageOrder.length}`;
+
+  els.prev.onclick = () => { if (prevId) navigate(prevId); };
+  els.next.onclick = () => { if (nextId) navigate(nextId); };
+}
+
+function labelFor(pageId) {
+  const p = state.pages[pageId];
+  return p ? p.title : pageId;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Page rendering — multiple canons per page
+ * ------------------------------------------------------------------ */
+function renderPage(pageId, opts = {}) {
+  state.lastPageOpts = Object.assign({}, opts);
+  const page = state.pages[pageId];
+  const frag = document.createDocumentFragment();
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'page-header';
+
+  const path = page.path || [];
+  if (path.length) {
+    const bc = document.createElement('div');
+    bc.className = 'breadcrumb';
+    path.forEach((p, i) => {
+      if (i) {
+        const sep = document.createElement('span');
+        sep.className = 'sep';
+        sep.textContent = '›';
+        bc.appendChild(sep);
+      }
+      bc.appendChild(document.createTextNode(p.name || (p.type + ' ' + (p.number || ''))));
+    });
+    header.appendChild(bc);
+  }
+
+  const h2 = document.createElement('h2');
+  h2.textContent = page.title;
+  header.appendChild(h2);
+  frag.appendChild(header);
+
+  // One block per canon
+  for (const n of page.canons) {
+    frag.appendChild(renderCanonBlock(n, pageId, opts));
+  }
+
+  els.page.innerHTML = '';
+  els.page.appendChild(frag);
+}
+
+function renderCanonBlock(n, pageId, opts = {}) {
+  const c = state.canons[String(n)];
+  if (!c) return document.createDocumentFragment();
+
+  const block = document.createElement('section');
+  block.className = 'canon-block';
+  block.id = 'canon-' + n;
+  block.dataset.canon = String(n);
+
+  const h = document.createElement('h3');
+  h.className = 'canon-title';
+  h.textContent = 'Canon ' + n;
+  block.appendChild(h);
+
+  const body = document.createElement('div');
+  body.className = 'page-body';
+
+  const paragraphs = (c.text || '')
+    .split(/\n{2,}/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  // Pre-highlight §N if the user navigated here via a §-qualified reference
+  const highlightIdx = (opts.scrollToCanon === n && opts.scrollToPara)
+    ? findTargetPara(paragraphs, opts.scrollToPara)
+    : -1;
+
+  paragraphs.forEach((pText, i) => {
+    const p = document.createElement('p');
+    p.className = 'para';
+    p.dataset.paraIndex = String(i);
+    if (i === highlightIdx) p.classList.add('highlight');
+    p.textContent = pText;
+    body.appendChild(p);
+  });
+
+  block.appendChild(body);
+
+  // See Also
+  const refs = c.references || [];
+  if (refs.length) {
+    block.appendChild(renderXrefSection('See Also', refs, 'refs'));
+  }
+
+  // Cited In
+  const backs = state.backlinks[n] || [];
+  if (backs.length) {
+    block.appendChild(renderXrefSection('Cited In',
+      backs.map(x => ({ number: x })), 'back'));
+  }
+
+  return block;
+}
+
+function findTargetPara(paragraphs, paraTag) {
+  const m = String(paraTag).match(/§{1,2}\s*(\d+)/);
+  if (!m) return -1;
+  const target = parseInt(m[1], 10);
+  for (let i = 0; i < paragraphs.length; i++) {
+    const pm = paragraphs[i].match(/^§\s*(\d+)/);
+    if (pm && parseInt(pm[1], 10) === target) return i;
+  }
+  return -1;
+}
+
+function renderXrefSection(label, refs, kind) {
+  const div = document.createElement('div');
+  div.className = 'xref-section';
+  div.dataset.kind = kind;
+
+  const h3 = document.createElement('h3');
+  h3.textContent = label + ':';
+  div.appendChild(h3);
+
+  for (const ref of refs) {
+    const n = ref.number;
+    const exists = !!state.canons[String(n)];
+
+    const a = document.createElement('a');
+    a.className = 'xref-pill' + (exists ? '' : ' missing');
+    a.href = '#canon-' + n;
+
+    a.appendChild(document.createTextNode('can. ' + n));
+
+    if (ref.paragraph) {
+      const tag = document.createElement('span');
+      tag.className = 'para-tag';
+      tag.textContent = ref.paragraph + (ref.subsection ? ', ' + ref.subsection : '');
+      a.appendChild(tag);
+    }
+
+    if (!exists) {
+      a.title = 'Canon ' + n + ' is not present in this dataset';
+      a.addEventListener('click', e => e.preventDefault());
+    } else {
+      a.addEventListener('mouseenter', () => showTooltip(a, ref));
+      a.addEventListener('mouseleave', hideTooltip);
+      a.addEventListener('focus', () => showTooltip(a, ref));
+      a.addEventListener('blur', hideTooltip);
+      a.addEventListener('click', (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
+        hideTooltip();
+        openPreview(ref);
+      });
+    }
+
+    div.appendChild(a);
+  }
+
+  return div;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Tooltip
+ * ------------------------------------------------------------------ */
+function ensureTooltip() {
+  if (!tooltipEl) tooltipEl = $('#tooltip');
+  return tooltipEl;
+}
+
+function entryLabel(ref) {
+  let s = 'Canon ' + ref.number;
+  if (ref.paragraph) s += ' ' + ref.paragraph;
+  if (ref.subsection) s += ', ' + ref.subsection;
+  return s;
+}
+
+function showTooltip(anchor, ref) {
+  const c = state.canons[String(ref.number)];
+  if (!c) return;
+  const tip = ensureTooltip();
+  tip.innerHTML = '';
+
+  const header = document.createElement('div');
+  header.className = 'tooltip-header';
+  header.textContent = entryLabel(ref);
+  tip.appendChild(header);
+
+  const body = document.createElement('div');
+  body.textContent = truncate((c.text || '').replace(/\s+/g, ' ').trim(), 300);
+  tip.appendChild(body);
+
+  tip.classList.add('show');
+  positionTooltip(anchor);
+}
+
+function positionTooltip(anchor) {
+  if (!tooltipEl) return;
+  const rect = anchor.getBoundingClientRect();
+  const tip = tooltipEl;
+  tip.style.visibility = 'hidden';
+  tip.style.left = '0px';
+  tip.style.top = '0px';
+  const tr = tip.getBoundingClientRect();
+  let left = rect.left;
+  let top = rect.bottom + 6;
+  if (left + tr.width > window.innerWidth - 10) left = window.innerWidth - tr.width - 10;
+  if (left < 10) left = 10;
+  if (top + tr.height > window.innerHeight - 10) {
+    top = rect.top - tr.height - 6;
+    if (top < 10) top = 10;
+  }
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+  tip.style.visibility = '';
+}
+
+function hideTooltip() {
+  if (tooltipEl) tooltipEl.classList.remove('show');
+}
+
+/* ------------------------------------------------------------------ *
+ *  Preview pane
+ * ------------------------------------------------------------------ */
+function openPreview(ref) {
+  const c = state.canons[String(ref.number)];
+  if (!c) return;
+
+  els.previewTitle.textContent = entryLabel(ref);
+  els.previewBody.innerHTML = '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'page-body';
+
+  const paragraphs = (c.text || '')
+    .split(/\n{2,}/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  const highlightIdx = ref.paragraph ? findTargetPara(paragraphs, ref.paragraph) : -1;
+
+  paragraphs.forEach((pText, i) => {
+    const p = document.createElement('p');
+    p.className = 'para';
+    if (i === highlightIdx) p.classList.add('highlight');
+    p.textContent = pText;
+    wrap.appendChild(p);
+  });
+
+  els.previewBody.appendChild(wrap);
+
+  const open = document.createElement('a');
+  open.href = '#canon-' + ref.number;
+  open.className = 'open-full';
+  open.textContent = 'Open in context →';
+  open.addEventListener('click', (e) => {
+    e.preventDefault();
+    closePreview();
+    handleRefNavigation(ref);
+  });
+  els.previewBody.appendChild(open);
+
+  els.previewPane.classList.add('open');
+  els.previewBody.scrollTop = 0;
+}
+
+function closePreview() {
+  if (els.previewPane) els.previewPane.classList.remove('open');
+}
+
+/**
+ * Navigate to a cross-reference target — on the current page it just
+ * scrolls, otherwise it opens the target page and scrolls to the canon.
+ */
+function handleRefNavigation(ref) {
+  const targetPage = state.canonToPage[ref.number];
+  if (!targetPage) return;
+
+  if (targetPage === state.currentPage) {
+    state.currentCanon = ref.number;
+    updateActiveTree(targetPage, ref.number);
+    scrollToCanon(ref.number, ref.paragraph);
+  } else {
+    navigate(targetPage, {
+      scrollToCanon: ref.number,
+      scrollToPara:  ref.paragraph,
+    });
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Advanced search
+ * ------------------------------------------------------------------ */
+function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildTermSource(term, opts) {
+  const esc = escapeRegExp(term);
+  if (opts.match === 'whole') {
+    const start = /^\w/.test(term) ? '\\b' : '';
+    const end   = /\w$/.test(term) ? '\\b' : '';
+    return start + esc + end;
+  }
+  return esc;
+}
+
+function buildMatcher(raw, opts) {
+  if (!raw) return null;
+  const flags = opts.caseSensitive ? 'g' : 'gi';
+
+  if (opts.match === 'regex') {
+    try {
+      const re = new RegExp(raw, flags);
+      return { test(text) { re.lastIndex = 0; return re.test(text); } };
+    } catch (e) { return { error: 'Invalid regular expression: ' + e.message }; }
+  }
+
+  let terms;
+  if (opts.logic === 'phrase') terms = [raw];
+  else terms = raw.split(/\s+/).filter(Boolean);
+  if (!terms.length) return null;
+
+  const regexes = terms.map(t => new RegExp(buildTermSource(t, opts), flags));
+  const requireAll = opts.logic !== 'any';
+
+  return {
+    test(text) {
+      if (requireAll) return regexes.every(re => { re.lastIndex = 0; return re.test(text); });
+      return regexes.some(re => { re.lastIndex = 0; return re.test(text); });
+    },
+  };
+}
+
+function buildHighlighter(raw, opts) {
+  const flags = opts.caseSensitive ? 'g' : 'gi';
+  if (opts.match === 'regex') {
+    try { return new RegExp(raw, flags); } catch (e) { return null; }
+  }
+  let terms;
+  if (opts.logic === 'phrase') terms = [raw];
+  else terms = raw.split(/\s+/).filter(Boolean);
+  if (!terms.length) return null;
+  const sources = terms.slice().sort((a, b) => b.length - a.length).map(t => buildTermSource(t, opts));
+  return new RegExp(sources.join('|'), flags);
+}
+
+function makeAdvancedSnippet(text, highlighter) {
+  if (!highlighter) return escapeHtml(text.slice(0, 200));
+  highlighter.lastIndex = 0;
+  let first = null;
+  try { first = highlighter.exec(text); } catch (e) { first = null; }
+
+  let start = 0;
+  let end = Math.min(text.length, 200);
+  if (first) {
+    const matchLen = first[0].length || 1;
+    start = Math.max(0, first.index - 55);
+    end = Math.min(text.length, first.index + matchLen + 75);
+  }
+
+  const slice = text.slice(start, end);
+  highlighter.lastIndex = 0;
+
+  let out = '';
+  let last = 0;
+  let m;
+  let safety = 0;
+  while ((m = highlighter.exec(slice)) !== null && safety++ < 500) {
+    if (m.index > last) out += escapeHtml(slice.slice(last, m.index));
+    if (m[0].length === 0) {
+      out += escapeHtml(slice[m.index] || '');
+      last = m.index + 1;
+      highlighter.lastIndex = last;
+      continue;
+    }
+    out += '<mark>' + escapeHtml(m[0]) + '</mark>';
+    last = m.index + m[0].length;
+  }
+  if (last < slice.length) out += escapeHtml(slice.slice(last));
+  return (start > 0 ? '…' : '') + out + (end < text.length ? '…' : '');
+}
+
+function toggleAdvanced() {
+  const opening = els.advPanel.hidden;
+  els.advPanel.hidden = !opening;
+  els.advToggle.classList.toggle('active', opening);
+  els.advToggle.setAttribute('aria-expanded', String(opening));
+  if (opening && els.searchDropdown) els.searchDropdown.scrollTop = 0;
+  syncDropdown();
+}
+
+function syncDropdown() {
+  const resultsOpen = els.searchResults.classList.contains('open');
+  const advOpen = els.advPanel && !els.advPanel.hidden;
+  els.searchDropdown.classList.toggle('open', resultsOpen || advOpen);
+}
+
+function onAdvancedChange() {
+  syncAdvancedHint();
+  const q = els.search.value.trim();
+  if (q) performSearch(q);
+  else syncDropdown();
+}
+
+function syncAdvancedHint() {
+  if (!els.advHint) return;
+  const o = state.searchOpts;
+  let text;
+  if (o.match === 'regex') {
+    text = 'Regex mode: the whole query is a JavaScript regular expression. Multi-word options are ignored.';
+  } else if (o.logic === 'phrase') {
+    text = o.match === 'whole'
+      ? 'Finds the exact phrase as whole words.'
+      : 'Finds the exact phrase anywhere in the text.';
+  } else if (o.logic === 'all') {
+    text = o.match === 'whole'
+      ? 'Finds canons containing every word as whole words.'
+      : 'Finds canons containing every word (as substrings).';
+  } else {
+    text = o.match === 'whole'
+      ? 'Finds canons containing any of the words as whole words.'
+      : 'Finds canons containing any of the words (as substrings).';
+  }
+  if (o.caseSensitive) text += ' Case-sensitive.';
+  els.advHint.textContent = text;
+  if (els.advLogicGroup) els.advLogicGroup.classList.toggle('disabled', o.match === 'regex');
+  if (els.advToggle) {
+    const active = o.match !== 'contains' || o.logic !== 'all' || o.caseSensitive;
+    els.advToggle.classList.toggle('has-active', active);
+  }
+}
+
+function bindAdvancedSearch() {
+  if (!els.advToggle) return;
+  els.advToggle.addEventListener('click', toggleAdvanced);
+
+  document.querySelectorAll('#advanced-search [data-match]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.searchOpts.match = btn.dataset.match;
+      document.querySelectorAll('#advanced-search [data-match]')
+        .forEach(b => b.classList.toggle('active', b === btn));
+      onAdvancedChange();
+    });
+  });
+
+  document.querySelectorAll('#advanced-search [data-logic]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.searchOpts.logic = btn.dataset.logic;
+      document.querySelectorAll('#advanced-search [data-logic]')
+        .forEach(b => b.classList.toggle('active', b === btn));
+      onAdvancedChange();
+    });
+  });
+
+  const caseBox = $('#adv-case');
+  if (caseBox) {
+    caseBox.addEventListener('change', () => {
+      state.searchOpts.caseSensitive = caseBox.checked;
+      onAdvancedChange();
+    });
+  }
+
+  syncAdvancedHint();
+}
+
+function onSearchInput() {
+  const q = els.search.value.trim();
+  clearTimeout(searchTimer);
+  if (!q) {
+    els.searchResults.classList.remove('open');
+    syncDropdown();
+    return;
+  }
+  searchTimer = setTimeout(() => performSearch(q), 110);
+}
+
+function performSearch(q) {
+  const results = [];
+  const MAX = 60;
+  const opts = state.searchOpts;
+  const trimmed = q.trim();
+
+  // Direct canon-number match
+  if (opts.match !== 'regex' && /^\d+$/.test(trimmed)) {
+    const n = parseInt(trimmed, 10);
+    if (state.canons[String(n)]) {
+      results.push({ type: 'canon-number', canon: n });
+    }
+  }
+
+  const matcher = buildMatcher(trimmed, opts);
+  if (matcher && matcher.error) {
+    renderSearchResults([{ type: 'error', message: matcher.error }], q);
+    return;
+  }
+  if (!matcher) {
+    renderSearchResults(results, q);
+    return;
+  }
+
+  const highlighter = buildHighlighter(trimmed, opts);
+  outer:
+  for (const n of state.canonOrder) {
+    const s = state.searchData[n];
+    if (matcher.test(s.text)) {
+      results.push({
+        type: 'text',
+        canon: n,
+        snippet: makeAdvancedSnippet(s.text, highlighter),
+      });
+      if (results.length >= MAX) break outer;
+    }
+  }
+
+  renderSearchResults(results, q);
+}
+
+function renderSearchResults(results, q) {
+  const box = els.searchResults;
+  box.innerHTML = '';
+
+  const err = results.find(r => r.type === 'error');
+  if (err) {
+    const item = document.createElement('div');
+    item.className = 'sr-empty';
+    item.textContent = err.message;
+    box.appendChild(item);
+    box.classList.add('open');
+    syncDropdown();
+    return;
+  }
+  if (!results.length) {
+    const empty = document.createElement('div');
+    empty.className = 'sr-empty';
+    empty.textContent = 'No results for “' + q + '”.';
+    box.appendChild(empty);
+    box.classList.add('open');
+    syncDropdown();
+    return;
+  }
+
+  const header = document.createElement('div');
+  header.className = 'sr-header';
+  header.textContent = results.length + (results.length >= 60 ? '+' : '') +
+    ' result' + (results.length === 1 ? '' : 's');
+  box.appendChild(header);
+
+  for (const r of results) {
+    const item = document.createElement('div');
+    item.className = 'sr-item';
+    item.setAttribute('role', 'option');
+
+    const title = document.createElement('div');
+    title.className = 'sr-title';
+    title.textContent = 'Canon ' + r.canon;
+    item.appendChild(title);
+
+    const crumb = state.searchData[r.canon] && state.searchData[r.canon].breadcrumb;
+    if (crumb) {
+      const sub = document.createElement('div');
+      sub.style.cssText = 'font-size:0.72rem;color:var(--muted);margin-top:2px;';
+      sub.textContent = crumb;
+      item.appendChild(sub);
+    }
+
+    const snippet = document.createElement('div');
+    snippet.className = 'sr-snippet';
+    if (r.type === 'canon-number') {
+      snippet.textContent = 'Jump to Canon ' + r.canon;
+    } else {
+      snippet.innerHTML = r.snippet;
+    }
+    item.appendChild(snippet);
+
+    item.addEventListener('click', () => {
+      closeSearch();
+      els.search.value = '';
+      navigateToCanon(r.canon);
+    });
+
+    box.appendChild(item);
+  }
+
+  box.classList.add('open');
+  syncDropdown();
+}
+
+function closeSearch() {
+  els.searchResults.classList.remove('open');
+  if (els.advPanel) els.advPanel.hidden = true;
+  if (els.advToggle) {
+    els.advToggle.classList.remove('active');
+    els.advToggle.setAttribute('aria-expanded', 'false');
+  }
+  syncDropdown();
+}
+
+/* ------------------------------------------------------------------ *
+ *  Paragraph context menu
+ * ------------------------------------------------------------------ */
+function ensureParaMenu() {
+  if (paraMenuEl) return paraMenuEl;
+
+  if (!document.getElementById('para-context-menu-style')) {
+    const style = document.createElement('style');
+    style.id = 'para-context-menu-style';
+    style.textContent = `
+      #para-context-menu {
+        position: fixed; z-index: 120; min-width: 240px;
+        background: var(--bg); border: 1px solid var(--border);
+        border-radius: 9px; box-shadow: 0 12px 40px var(--shadow);
+        padding: 5px; display: none; font-family: var(--sans);
+        font-size: 0.84rem;
+      }
+      #para-context-menu.open { display: block; }
+      #para-context-menu .pcm-header {
+        padding: 6px 10px 7px; font-size: 0.7rem; text-transform: uppercase;
+        letter-spacing: 0.06em; color: var(--muted); font-weight: 700;
+        border-bottom: 1px solid var(--border); margin-bottom: 4px;
+      }
+      #para-context-menu button {
+        display: block; width: 100%; text-align: left; background: none;
+        border: none; color: var(--text); padding: 8px 10px; border-radius: 6px;
+        font-family: var(--sans); font-size: 0.84rem; cursor: pointer;
+      }
+      #para-context-menu button:hover,
+      #para-context-menu button:focus-visible {
+        background: var(--bg-alt); color: var(--accent); outline: none;
+      }
+      #para-context-menu .pcm-status {
+        padding: 7px 10px 3px; font-size: 0.75rem; color: var(--muted);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const menu = document.createElement('div');
+  menu.id = 'para-context-menu';
+  menu.setAttribute('role', 'menu');
+  menu.innerHTML =
+    '<div class="pcm-header" role="presentation"></div>' +
+    '<button type="button" role="menuitem" data-action="link">Copy link to canon</button>' +
+    '<button type="button" role="menuitem" data-action="text">Copy canon text</button>' +
+    '<button type="button" role="menuitem" data-action="number">Copy canon number</button>' +
+    '<div class="pcm-status" role="status" aria-live="polite" hidden></div>';
+
+  menu.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  menu.addEventListener('click', (e) => {
+    const btn = e.target.closest ? e.target.closest('button[data-action]') : null;
+    if (!btn || !paraMenuTarget) return;
+    const { n } = paraMenuTarget;
+    let payload = '';
+    if (btn.dataset.action === 'link')   payload = buildParaLink(n);
+    else if (btn.dataset.action === 'number') payload = String(n);
+    else if (btn.dataset.action === 'text')   payload = paragraphText(n);
+
+    copyToClipboard(payload).then(ok => {
+      const status = menu.querySelector('.pcm-status');
+      if (status) {
+        status.hidden = false;
+        status.textContent = ok ? 'Copied!' : 'Copy failed';
+      }
+      setTimeout(closeParaMenu, ok ? 650 : 1200);
+    });
+  });
+
+  document.body.appendChild(menu);
+  paraMenuEl = menu;
+  return menu;
+}
+
+function openParaMenu(x, y, n) {
+  const menu = ensureParaMenu();
+  paraMenuTarget = { n };
+
+  const header = menu.querySelector('.pcm-header');
+  if (header) header.textContent = 'Canon ' + n;
+
+  const status = menu.querySelector('.pcm-status');
+  if (status) { status.hidden = true; status.textContent = ''; }
+
+  menu.classList.add('open');
+  menu.style.left = '0px';
+  menu.style.top = '0px';
+
+  const r = menu.getBoundingClientRect();
+  let left = x, top = y;
+  if (left + r.width > window.innerWidth - 8) left = window.innerWidth - r.width - 8;
+  if (left < 8) left = 8;
+  if (top + r.height > window.innerHeight - 8) top = y - r.height;
+  if (top < 8) top = 8;
+
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+}
+
+function closeParaMenu() {
+  if (paraMenuEl) paraMenuEl.classList.remove('open');
+  paraMenuTarget = null;
+}
+
+function onPageContextMenu(e) {
+  const target = e.target;
+  if (!target || !target.closest) return;
+  // Find the canon block the user right-clicked in
+  const block = target.closest('.canon-block');
+  if (!block) return;
+  const n = parseInt(block.dataset.canon, 10);
+  if (!Number.isFinite(n)) return;
+
+  e.preventDefault();
+  hideTooltip();
+  openParaMenu(e.clientX, e.clientY, n);
+}
+
+/* ------------------------------------------------------------------ *
+ *  Embedder support
+ * ------------------------------------------------------------------ */
+function getEmbedRaw() {
+  if (state.embedRaw !== undefined) return state.embedRaw;
+  try {
+    state.embedRaw = new URLSearchParams(location.search).get('embed') || null;
+  } catch (e) { state.embedRaw = null; }
+  return state.embedRaw;
+}
+
+function getEmbedUrl() {
+  const raw = getEmbedRaw();
+  if (!raw) return null;
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    return u;
+  } catch (e) { return null; }
+}
+
+function buildParaLink(n) {
+  const embed = getEmbedUrl();
+  if (embed) {
+    embed.searchParams.set('p', String(n));
+    return embed.href;
+  }
+  try {
+    const u = new URL(location.href);
+    u.hash = '';
+    u.searchParams.set('p', String(n));
+    return u.href;
+  } catch (e) {
+    return location.href.split('#')[0] + '?p=' + encodeURIComponent(n);
+  }
+}
+
+function paragraphText(n) {
+  const c = state.canons[String(n)];
+  if (!c) return '';
+  return (c.text || '').replace(/\s+/g, ' ').trim();
+}
+
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (e) {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch (e) { return false; }
+}
+
+/* ------------------------------------------------------------------ *
+ *  UI events
+ * ------------------------------------------------------------------ */
+function bindUI() {
+  els.search.addEventListener('input', onSearchInput);
+
+  els.search.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const first = els.searchResults.querySelector('.sr-item');
+      if (first) { e.preventDefault(); first.click(); }
+    } else if (e.key === 'Escape') {
+      els.search.value = '';
+      closeSearch();
+      els.search.blur();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!els.searchWrap.contains(e.target)) closeSearch();
+    if (!paraMenuEl || !paraMenuEl.contains(e.target)) closeParaMenu();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && !isTypingTarget(e.target)) {
+      e.preventDefault();
+      els.search.focus();
+      els.search.select();
+    }
+    if (e.key === 'Escape') {
+      if (els.themeModal && !els.themeModal.hidden) { closeThemeDialog(); return; }
+      closeSearch();
+      closeParaMenu();
+      hideTooltip();
+      closePreview();
+    }
+  });
+
+  els.menuToggle.addEventListener('click', () => {
+    els.sidebar.classList.toggle('open');
+    els.backdrop.classList.toggle('show', els.sidebar.classList.contains('open'));
+  });
+  els.backdrop.addEventListener('click', closeSidebar);
+
+  els.page.addEventListener('contextmenu', onPageContextMenu);
+  document.addEventListener('scroll', closeParaMenu, true);
+  window.addEventListener('resize', closeParaMenu);
+  window.addEventListener('blur', closeParaMenu);
+
+  els.themeBtn.addEventListener('click', openThemeDialog);
+  $('#theme-close').addEventListener('click', closeThemeDialog);
+  $('#theme-done').addEventListener('click', closeThemeDialog);
+  els.themeModal.querySelector('.modal-backdrop').addEventListener('click', closeThemeDialog);
+
+  els.modeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (state.themeMode === btn.dataset.mode) return;
+      state.themeMode = btn.dataset.mode;
+      applyTheme();
+    });
+  });
+
+  els.bgRange.addEventListener('input', onBgSlider);
+  els.bgNumber.addEventListener('input', onBgNumberInput);
+  els.bgNumber.addEventListener('change', onBgNumberCommit);
+  els.bgNumber.addEventListener('blur', onBgNumberCommit);
+
+  els.hueRange.addEventListener('input', onHueSlider);
+  els.hueNumber.addEventListener('input', onHueNumberInput);
+  els.hueNumber.addEventListener('change', onHueNumberCommit);
+  els.hueNumber.addEventListener('blur', onHueNumberCommit);
+
+  bindAdvancedSearch();
+  $('#preview-close').addEventListener('click', closePreview);
+
+  window.addEventListener('popstate', routeFromURL);
+  window.addEventListener('scroll', hideTooltip, { passive: true });
+}
+
+function closeSidebar() {
+  els.sidebar.classList.remove('open');
+  els.backdrop.classList.remove('show');
+}
+
+function isTypingTarget(el) {
+  if (!el) return false;
+  const tag = el.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Hash / query routing
+ *  - ?p=<n>       → page containing canon n, scrolled to n
+ *  - #/page-<id>  → specific page
+ *  - #canon-<n>   → page containing canon n, scrolled to n
+ * ------------------------------------------------------------------ */
+function parseParagraphQuery() {
+  try {
+    const raw = new URLSearchParams(location.search).get('p');
+    if (!raw) return null;
+    const s = raw.trim();
+    if (!/^\d+$/.test(s)) return null;
+    const n = parseInt(s, 10);
+    return Number.isFinite(n) ? n : null;
+  } catch (e) { return null; }
+}
+
+function setLocation(pageId, mode) {
+  try {
+    const u = new URL(location.href);
+    u.hash = '#/page-' + pageId;
+    u.searchParams.delete('p');
+    const raw = getEmbedRaw();
+    if (raw) u.searchParams.set('embed', raw);
+    history[mode]({ pageId }, '', u.href);
+  } catch (e) {
+    try { history[mode]({ pageId }, '', '#/page-' + pageId); } catch (e2) {}
+  }
+}
+
+function routeFromURL() {
+  const p = parseParagraphQuery();
+  if (p != null && state.canons[String(p)] && state.canonToPage[p]) {
+    const pageId = state.canonToPage[p];
+    if (pageId !== state.currentPage) {
+      navigate(pageId, { scrollToCanon: p, silentHash: true });
+    } else if (p !== state.currentCanon) {
+      state.currentCanon = p;
+      updateActiveTree(pageId, p);
+      scrollToCanon(p);
+    }
+    return;
+  }
+
+  const hash = location.hash;
+  let m = hash.match(/^#\/page-([^\/]+)$/);
+  if (m && state.pages[m[1]]) {
+    if (m[1] !== state.currentPage) navigate(m[1], { silentHash: true });
+    return;
+  }
+  m = hash.match(/^#canon-(\d+)$/);
+  if (m) {
+    const n = parseInt(m[1], 10);
+    if (state.canonToPage[n]) {
+      navigate(state.canonToPage[n], { scrollToCanon: n, silentHash: true });
+      return;
+    }
+  }
+}
+
+function routeInitial() {
+  const p = parseParagraphQuery();
+  if (p != null && state.canonToPage[p]) {
+    const pageId = state.canonToPage[p];
+    navigate(pageId, { scrollToCanon: p, silentHash: true });
+    setLocation(pageId, 'replaceState');
+    return;
+  }
+
+  const hash = location.hash;
+  let m = hash.match(/^#\/page-([^\/]+)$/);
+  if (m && state.pages[m[1]]) {
+    navigate(m[1], { silentHash: true });
+    setLocation(m[1], 'replaceState');
+    return;
+  }
+  m = hash.match(/^#canon-(\d+)$/);
+  if (m) {
+    const n = parseInt(m[1], 10);
+    if (state.canonToPage[n]) {
+      navigate(state.canonToPage[n], { scrollToCanon: n, silentHash: true });
+      setLocation(state.canonToPage[n], 'replaceState');
+      return;
+    }
+  }
+
+  // Fallback: first page in reading order
+  if (state.pageOrder.length) {
+    const first = state.pageOrder[0];
+    navigate(first, { silentHash: true });
+    setLocation(first, 'replaceState');
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Theme
+ * ------------------------------------------------------------------ */
+const THEME_KEY    = 'canonlaw-theme';
+const CONTRAST_KEY = 'canonlaw-contrast';
+const HUE_KEY      = 'canonlaw-hue';
+const HIGHLIGHT_ALPHA_LIGHT = 0.5;
+const HIGHLIGHT_ALPHA_DARK  = 0.5;
+
+function clampNum(n, lo, hi) { return Math.min(hi, Math.max(lo, n)); }
+
+function readInt(input) {
+  if (!input) return null;
+  const raw = String(input.value).trim();
+  if (!raw || !/^[+-]?\d+$/.test(raw)) return null;
+  const n = parseInt(raw, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+function setupTheme() {
+  const savedMode = localStorage.getItem(THEME_KEY);
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  state.themeMode = (savedMode === 'light' || savedMode === 'dark')
+    ? savedMode : (prefersDark ? 'dark' : 'light');
+
+  const defaultHue = clampNum(getCssInt('--default-hue', 25), 0, 360);
+  const defaultContrast = clampNum(getCssInt('--default-contrast', 0), 0, 100);
+
+  const savedContrast = parseInt(localStorage.getItem(CONTRAST_KEY), 10);
+  state.contrast = Number.isFinite(savedContrast) ? clampNum(savedContrast, 0, 100) : defaultContrast;
+
+  const savedHue = parseInt(localStorage.getItem(HUE_KEY), 10);
+  state.hue = Number.isFinite(savedHue) ? clampNum(savedHue, 0, 360) : defaultHue;
+
+  applyTheme();
+}
+
+function applyTheme() {
+  const root = document.documentElement;
+  const dark = state.themeMode === 'dark';
+  root.dataset.theme = state.themeMode;
+
+  const h = state.hue;
+  const t = state.contrast / 100;
+
+  const hsl = (s, l) => `hsl(${h}, ${Math.round(s * 10) / 10}%, ${Math.round(l * 10) / 10}%)`;
+  const hsla = (s, l, a) => `hsla(${h}, ${Math.round(s * 10) / 10}%, ${Math.round(l * 10) / 10}%, ${a})`;
+
+  let bg, alt, side, text, muted, border, accent, accentSoft, highlight, shadow;
+
+  if (dark) {
+    const bgL = 14 - t * 14, bgS = 32 - t * 32;
+    bg = hsl(bgS, bgL); alt = hsl(bgS * 0.9, bgL + 4); side = alt;
+
+    const textL = 66 + t * 34, textS = 20 - t * 20;
+    text = hsl(textS, textL);
+    muted = hsl(12 - t * 12, 52 + t * 30);
+    border = hsl(24, 26 + t * 20);
+
+    accent = hsl(60, 64 + t * 18);
+    accentSoft = hsl(26, 18 - t * 8);
+    highlight = hsla(55, 30, HIGHLIGHT_ALPHA_DARK);
+    shadow = `rgba(0, 0, 0, ${(0.55 + t * 0.35).toFixed(2)})`;
+  } else {
+    const bgL = 96 - t * 4, bgS = 55 - t * 55;
+    bg = hsl(bgS, bgL); alt = hsl(bgS * 0.9, bgL - 3); side = alt;
+
+    const textL = 30 - t * 30, textS = 25 - t * 25;
+    text = hsl(textS, textL);
+    muted = hsl(14, 46 - t * 12);
+    border = hsl(20, 82 - t * 32);
+
+    accent = hsl(65, 34 - t * 14);
+    accentSoft = hsl(45, 92 - t * 6);
+    highlight = hsla(85, 80, HIGHLIGHT_ALPHA_LIGHT);
+    shadow = `rgba(0, 0, 0, ${(0.14 + t * 0.12).toFixed(2)})`;
+  }
+
+  const style = root.style;
+  style.setProperty('--bg', bg);
+  style.setProperty('--bg-alt', alt);
+  style.setProperty('--sidebar-bg', side);
+  style.setProperty('--text', text);
+  style.setProperty('--muted', muted);
+  style.setProperty('--border', border);
+  style.setProperty('--accent', accent);
+  style.setProperty('--accent-soft', accentSoft);
+  style.setProperty('--highlight', highlight);
+  style.setProperty('--shadow', shadow);
+
+  try {
+    localStorage.setItem(THEME_KEY, state.themeMode);
+    localStorage.setItem(CONTRAST_KEY, String(state.contrast));
+    localStorage.setItem(HUE_KEY, String(state.hue));
+  } catch (e) {}
+
+  syncThemeControls();
+}
+
+function syncThemeControls() {
+  if (!els.bgRange) return;
+  els.bgRange.value = state.contrast;
+  els.hueRange.value = state.hue;
+  els.bgNumber.value = state.contrast;
+  els.hueNumber.value = state.hue;
+  if (els.modeButtons) {
+    els.modeButtons.forEach(btn => {
+      const active = btn.dataset.mode === state.themeMode;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', String(active));
+    });
+  }
+}
+
+function onBgSlider() {
+  const n = readInt(els.bgRange);
+  state.contrast = clampNum(n == null ? 0 : n, 0, 100);
+  applyTheme();
+}
+function onBgNumberInput() {
+  const n = readInt(els.bgNumber);
+  if (n == null) return;
+  state.contrast = clampNum(n, 0, 100);
+  applyTheme();
+}
+function onBgNumberCommit() {
+  const n = readInt(els.bgNumber);
+  state.contrast = clampNum(n == null ? state.contrast : n, 0, 100);
+  applyTheme();
+}
+function onHueSlider() {
+  const n = readInt(els.hueRange);
+  state.hue = clampNum(n == null ? 0 : n, 0, 360);
+  applyTheme();
+}
+function onHueNumberInput() {
+  const n = readInt(els.hueNumber);
+  if (n == null) return;
+  state.hue = clampNum(n, 0, 360);
+  applyTheme();
+}
+function onHueNumberCommit() {
+  const n = readInt(els.hueNumber);
+  state.hue = clampNum(n == null ? state.hue : n, 0, 360);
+  applyTheme();
+}
+
+function openThemeDialog() {
+  if (!els.themeModal || !els.themeModal.hidden) return;
+  els.themeModal.hidden = false;
+  syncThemeControls();
+  const focusTarget = els.themeModal.querySelector('.segmented button.active') || els.bgRange;
+  if (focusTarget) focusTarget.focus();
+}
+function closeThemeDialog() {
+  if (!els.themeModal || els.themeModal.hidden) return;
+  els.themeModal.hidden = true;
+  if (els.themeBtn) els.themeBtn.focus();
+}
+
+/* ------------------------------------------------------------------ *
+ *  Utilities
+ * ------------------------------------------------------------------ */
+function truncate(s, n) {
+  if (!s) return '';
+  return s.length > n ? s.slice(0, n - 1) + '…' : s;
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
+  }[c]));
+}
+function getCssInt(name, fallback) {
+  try {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) ? n : fallback;
+  } catch (e) { return fallback; }
+}
+</script>
+</body>
+</html>
